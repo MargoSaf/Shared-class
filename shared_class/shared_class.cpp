@@ -34,19 +34,14 @@ uint8_t shared_memory::join_shared_memory(){
     /* open shared memory if it's already created*/
     shm_fd = shm_open(name.c_str(), O_EXCL | O_RDWR, 0666);
      if(shm_fd == -1){
-        std::cerr<<"failed to open shared memory"<<std::endl;
         /* create shared memory*/
         shm_fd = shm_open(name.c_str(), O_CREAT | O_RDWR, 0666);
         if(shm_fd == -1){
             join_status = FAILED_TO_JOIN_MEMORY;
-            std::cerr<<"failed to open shared memory"<<std::endl;
             return join_status;
         }else{
             join_status = MEMORY_CREATED;
-            std::cout<<"open shared memory"<<std::endl;
         }
-    }else{
-         std::cout<<"join to shared memory"<<std::endl;         
     }
     /* configure the size of the shared memory object */
     ftruncate(shm_fd, SIZE);

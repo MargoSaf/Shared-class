@@ -14,9 +14,12 @@ void message_handler(std::string msg){
 }
 
 int main (void) {
-	void (*ptr_callback) (std::string) = NULL; 
-	shared_class::register_callback(message_handler);
-	std::cout<<"go to sleep " << std::endl;
+    if(!shared_class::register_callback(message_handler)){
+        std::cerr<<"Failed to register callback, end process" <<std::endl;
+        return -1;
+    }
+    std::cout<<"Callback registered" <<std::endl; 
+    sleep(3);
 	int pid = getpid();
 	sleep(5);
 	for(int i = 0; i< 15; ++i){
