@@ -9,7 +9,7 @@
 
 bool is_msg_updated = false;
 void message_handler(std::string msg){
-	std::cout <<"'"<< msg << "' message receved" << std::endl;
+	std::cout <<"SHARE MESSAGES PROCESS: message handler '"<< msg << "' message receved" << std::endl;
 	is_msg_updated = true;
 }
 
@@ -18,7 +18,7 @@ int main (void) {
         std::cerr<<"Failed to register callback, end process" <<std::endl;
         return -1;
     }
-    std::cout<<"Callback registered" <<std::endl; 
+    std::cout<<"SHARE MESSAGES PROCESS: callback registered" <<std::endl; 
     sleep(3);
 	int pid = getpid();
 	sleep(5);
@@ -28,7 +28,7 @@ int main (void) {
 			sleep(1);
 		}
 		std::string msg = "hello from " + std::to_string(pid) + " processs";
-		std::cout<<"set' " << msg << "' message"<<std::endl;            
+		std::cout<<"SHARE MESSAGES PROCESS: set' " << msg << "' message"<<std::endl;            
 		shared_class::set_message(msg);    
 		sleep(1);
 	}
