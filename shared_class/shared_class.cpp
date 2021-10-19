@@ -13,10 +13,7 @@
 shared_memory::shared_memory(std::string nm){
     name = nm;  
     shm_fd = -1;
-    semptr = sem_open(name.c_str(), O_CREAT, 0660, 0);      
-    if (semptr == NULL) 
-        std::cerr<<"failed to create semaphore"<<std::endl;  
-    if (sem_post(semptr) < 0) std::cout<<"failed to post semaphore"<<std::endl;
+    semptr = NULL;      
 }
 
 shared_memory::~shared_memory(){
@@ -27,6 +24,10 @@ shared_memory::~shared_memory(){
 }
 
 uint8_t shared_memory::join_shared_memory(){
+
+    semptr = sem_open(name.c_str(), O_CREAT, 0660, 0);      
+    if (semptr == NULL) 
+        std::cerr<<"failed to create semaphore"<<std::endl;  
     if(shm_fd > 0){
         return MEMORY_OPENED;
     }
@@ -41,6 +42,7 @@ uint8_t shared_memory::join_shared_memory(){
             return join_status;
         }else{
             join_status = MEMORY_CREATED;
+            if (sem_post(semptr) < 0) std::cout<<"failed to post semaphore"<<std::endl;
         }
     }
     /* configure the size of the shared memory object */
@@ -112,14 +114,15 @@ void shared_class::signal_handler(int sig) {
 }
 
 bool shared_class::register_process(int pid){
-    /* wait for shared memory blocking before doing any changes in shared memory */
-    if(!memory.block_shared_memory())
-        return false;
+
     uint8_t join_status = memory.join_shared_memory();
     if(join_status == memory.FAILED_TO_JOIN_MEMORY){
         std::cerr << "Failed to join shared memory" << std::endl;
         return false;
     }
+   /* wait for shared memory blocking before doing any changes in shared memory */
+    if(!memory.block_shared_memory())
+        return false;
     uint32_t pid_count = 0;
     __pid_t pid_list[CALLBACK_COUNT_MAX];
     memset(pid_list, 0 , sizeof(pid_list));
