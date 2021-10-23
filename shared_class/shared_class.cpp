@@ -107,10 +107,16 @@ void shared_class::set_message(std::string msg){
     memory.unblock_shared_memory();
 }
 
-void shared_class::signal_handler(int sig) {
-    if (sig == MESSAGE_CHANGED)
-        ptr_callback(get_message());
-    signal(sig, signal_handler);
+void *shared_class::signal_handler( void *ptr ){
+  while(1){
+    // Wait for a signal in the set
+    int signal;
+    if(sigwait(&signals, &signal)) {
+       std::cerr << "sigwait failed" << std::endl;
+      exit(2);
+    }
+    ptr_callback(get_message());
+  }
 }
 
 bool shared_class::register_process(int pid){
@@ -152,7 +158,30 @@ bool shared_class::register_callback(void (*f) (std::string)){
 
     if(register_process(getpid())){
         ptr_callback = f;
-        signal(MESSAGE_CHANGED, signal_handler);
+        pthread_t handler_thread;
+        int handler_thread_itr;
+
+        if(sigemptyset(&signals)) {
+             std::cerr << "sigemptyset failed" << std::endl;
+            return false;
+        }
+
+        // Add SIGINT to the signal set
+        if(sigaddset(&signals, MESSAGE_CHANGED)) {
+            std::cerr << "sigaddset failed" << std::endl;
+           return false;
+        }
+
+        if(sigprocmask(SIG_BLOCK, &signals, NULL)) {
+            std::cerr << "sigprocmask failed" << std::endl;
+            return false;
+        }
+        /* Create independent threads each of which will execute signal handler function */
+        handler_thread_itr = pthread_create( &handler_thread, NULL, signal_handler, NULL);
+        if (pthread_detach(handler_thread) != 0) {
+            std::cerr << "pthread detach failed" << std::endl;
+            return 0;
+        }
         return true;
     }
     return false;
@@ -177,3 +206,4 @@ void shared_class::notify_all(int event_type){
 shared_memory shared_class::memory("shared_classs");
 
 void (*shared_class::ptr_callback) (std::string) = NULL; 
+sigset_t shared_class::signals;

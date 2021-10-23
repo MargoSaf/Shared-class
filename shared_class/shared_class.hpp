@@ -28,7 +28,8 @@ class shared_class{
     shared_class(){}
     static void notify_all(int event_type);
     static bool register_process(int pid);
-    static void signal_handler(int sig);
+    static void *signal_handler( void *ptr );
+    static    sigset_t signals;
 
     #define PID_LIST_SIZE           sizeof(__pid_t) * CALLBACK_COUNT_MAX
     #define PID_COUNT_INDEX         0
