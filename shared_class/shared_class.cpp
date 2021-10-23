@@ -108,15 +108,16 @@ void shared_class::set_message(std::string msg){
 }
 
 void *shared_class::signal_handler( void *ptr ){
-  while(1){
-    // Wait for a signal in the set
-    int signal;
-    if(sigwait(&signals, &signal)) {
-       std::cerr << "sigwait failed" << std::endl;
-      exit(2);
+    while(1){
+        // Wait for a signal in the set
+        int signal;
+        if(sigwait(&signals, &signal)) {
+            std::cerr << "sigwait failed" << std::endl;
+            exit(2);
+        }
+        ptr_callback(get_message());
     }
-    ptr_callback(get_message());
-  }
+    return NULL;
 }
 
 bool shared_class::register_process(int pid){
