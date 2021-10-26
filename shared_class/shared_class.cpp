@@ -52,6 +52,7 @@ uint8_t shared_memory::join_shared_memory(){
     ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
      if(ptr == NULL){
         std::cerr<<"ptr to shared memory object is NULL"<<std::endl;
+        join_status = FAILED_TO_JOIN_MEMORY;
     }
     return join_status;
 }
