@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include "shared_class/shared_class.hpp"
+#include "src/shared_class/shared_class.hpp"
 
 #define PARENT "PARENT PROCESS:         "
 #define CHILDE "CHILDE PROCESS:         "

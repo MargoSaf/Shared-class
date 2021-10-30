@@ -3,6 +3,7 @@
 
 #include <string>
 #include <semaphore.h>
+#include "../message_queue/message_queue.hpp"
 
 class shared_memory{
     std::string name;           /**< Name of the shared memory object */
@@ -24,7 +25,7 @@ class shared_memory{
 
 class shared_class{
     static shared_memory memory;
-    static void (*ptr_callback) (std::string);
+    static message_queue msg_queue;
     shared_class(){}
     static void notify_all(int event_type);
     static bool register_process(int pid);

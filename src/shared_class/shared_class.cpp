@@ -9,6 +9,7 @@
 #include <cstring>
 #include "shared_class.hpp"
 #include <semaphore.h>
+#include "../message_queue/message_queue.hpp"
 
 shared_memory::shared_memory(std::string nm){
     name = nm;  
@@ -116,7 +117,8 @@ void *shared_class::signal_handler( void *ptr ){
             std::cerr << "sigwait failed" << std::endl;
             exit(2);
         }
-        ptr_callback(get_message());
+        std::string msg = get_message();
+        msg_queue.add_message(msg);
     }
     return NULL;
 }
@@ -159,7 +161,8 @@ bool shared_class::register_process(int pid){
 bool shared_class::register_callback(void (*f) (std::string)){
 
     if(register_process(getpid())){
-        ptr_callback = f;
+        //ptr_callback = f;
+        msg_queue.register_handler(f);
         pthread_t handler_thread;
         int handler_thread_itr;
 
@@ -207,5 +210,6 @@ void shared_class::notify_all(int event_type){
 
 shared_memory shared_class::memory("shared_classs");
 
-void (*shared_class::ptr_callback) (std::string) = NULL; 
+//void (*shared_class::ptr_callback) (std::string) = NULL; 
 sigset_t shared_class::signals;
+message_queue shared_class::msg_queue;
