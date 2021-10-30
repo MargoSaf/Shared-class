@@ -161,8 +161,6 @@ bool shared_class::register_process(int pid){
 bool shared_class::register_callback(void (*f) (std::string)){
 
     if(register_process(getpid())){
-        //ptr_callback = f;
-        msg_queue.register_handler(f);
         pthread_t handler_thread;
         int handler_thread_itr;
 
@@ -187,6 +185,7 @@ bool shared_class::register_callback(void (*f) (std::string)){
             std::cerr << "pthread detach failed" << std::endl;
             return 0;
         }
+        msg_queue.register_handler(f);
         return true;
     }
     return false;

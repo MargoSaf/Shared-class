@@ -22,14 +22,7 @@ message_queue::message_queue(){
         pthread_mutex_destroy(&condition_mutex);
         return;
     }  
-    ret = pthread_create( &broadcast_msg_thread, NULL, run_thread, this);
-    if(ret != 0){
-        std::cerr << "failed to create thread " <<std::endl;
-        pthread_mutex_destroy(&condition_mutex);
-        pthread_cond_destroy(&condition_cond);
-        is_obj_created = false;
-        return;
-    }  
+
 
     is_obj_created = true;
 }
@@ -67,6 +60,16 @@ void message_queue::broadcast_msg(){
 
 
 bool message_queue::register_handler(void (*handler)(std::string)){
+    if(handlers_count == 0){
+        int ret = pthread_create( &broadcast_msg_thread, NULL, run_thread, this);
+        if(ret != 0){
+            std::cerr << "failed to create thread " <<std::endl;
+            pthread_mutex_destroy(&condition_mutex);
+            pthread_cond_destroy(&condition_cond);
+            is_obj_created = false;
+            return false;
+        }
+    }
     if(!is_obj_created)
         return false;
     if(handlers_count < HANDLERS_MAX_COUNT){
